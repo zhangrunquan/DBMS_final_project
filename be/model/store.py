@@ -1,68 +1,72 @@
 import logging
 import os
 import sqlite3 as sqlite
+import psycopg2
+from be.model.constants import Constants as C
 
 
 class Store:
     """database abstraction"""
-    database: str
 
-    def __init__(self, db_path):
-        self.database = os.path.join(db_path, "be.db")
-        self.init_tables()
-
-    def init_tables(self):
+    @staticmethod
+    def init_tables():
         """初始化数据库"""
 
-        try:
-            conn = self.get_db_conn()
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS user ("
-                "user_id TEXT PRIMARY KEY, password TEXT NOT NULL, "
-                "balance INTEGER NOT NULL, token TEXT, terminal TEXT);"
-            )
+        conn = Store.get_db_conn()
+        cursor = conn.cursor()
+        # 删除表
+        tables = ['usr', 'store', 'user_store', 'pending_order', 'finished_oreder']
+        sql = "".join(['drop table if exists {};'.format(name) for name in tables])
+        cursor.execute(sql)
+        sql = 'create table usr(' \
+              'user_id varchar(50) primary key ,' \
+              'password varchar(50),' \
+              'balance int,' \
+              'token varchar(100),' \
+              'terminal varchar(100)' \
+              ');'
+        sql += 'create table store(' \
+               'id serial primary key,' \
+               'store_id varchar(50),' \
+               'book_id varchar(50),' \
+               'book_info varchar(500),' \
+               'stock_level int,' \
+               'price int,' \
+               'search_content1 varchar(200),' \
+               'search_content2 varchar(200)' \
+               ');'
+        sql += 'create table user_store(' \
+               'user_id varchar(50),' \
+               'store_id varchar(50) primary key' \
+               ');'
+        sql += 'create table pending_order(' \
+               'order_id serial primary key,' \
+               'buyer_id varchar(50),' \
+               'seller_id varchar(50),' \
+               'store_id varchar(50),' \
+               'price int,' \
+               'order_info varchar(500),' \
+               'status smallint,' \
+               'create_ts timestamp' \
+               ');'
+        sql += 'create table finished_order(' \
+               'order_id int primary key,' \
+               'buyer_id varchar(50),' \
+               'seller_id varchar(50),' \
+               'store_id varchar(50),' \
+               'order_info varchar(500),' \
+               'price int' \
+               ');'
+        cursor.execute(sql)
+        sql = 'create index store_i1 on store(store_id);'
+        sql += 'create index store_i2 on store(book_id);'
+        sql += 'create index pending_order_i1 on pending_order(buyer_id);'
+        sql += 'create index finished_order_i1 on finished_order(buyer_id);'
+        cursor.execute(sql)
+        conn.commit()
 
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS user_store("
-                "user_id TEXT, store_id, PRIMARY KEY(user_id, store_id));"
-            )
-
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS store( "
-                "store_id TEXT, book_id TEXT, book_info TEXT, stock_level INTEGER,"
-                " PRIMARY KEY(store_id, book_id))"
-            )
-
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS new_order( "
-                "order_id TEXT PRIMARY KEY, user_id TEXT, store_id TEXT)"
-            )
-
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS new_order_detail( "
-                "order_id TEXT, book_id TEXT, count INTEGER, price INTEGER,  "
-                "PRIMARY KEY(order_id, book_id))"
-            )
-
-            conn.commit()
-        except sqlite.Error as e:
-            logging.error(e)
-            conn.rollback()
-
-    def get_db_conn(self) -> sqlite.Connection:
+    @staticmethod
+    def get_db_conn():
         """获取到数据库连接"""
-
-        return sqlite.connect(self.database)
-
-
-database_instance: Store = None
-
-
-def init_database(db_path):
-    global database_instance
-    database_instance = Store(db_path)
-
-
-def get_db_conn():
-    global database_instance
-    return database_instance.get_db_conn()
+        return psycopg2.connect(database=C.DB_NAME, user=C.DB_USER, password=C.DB_PASSWORD, host=C.DB_HOST
+                                , port=C.DB_PORT)
