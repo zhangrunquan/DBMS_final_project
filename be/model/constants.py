@@ -15,3 +15,4 @@ class Constants:
 
     # 测试用
     TEST_DEFAULT_USER_PASSWORD='123456'
+    TEST_DEFAULT_TERMINAL='terminal1'
