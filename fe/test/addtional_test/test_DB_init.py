@@ -8,5 +8,6 @@ class MyTestCase(unittest.TestCase):
         Store.init_tables()
 
 
+
 if __name__ == '__main__':
     unittest.main()

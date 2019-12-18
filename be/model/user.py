@@ -2,8 +2,12 @@ import jwt
 import time
 import logging
 import sqlite3 as sqlite
+
+from flask import jsonify
+
 from be.model import error
 from be.model import db_conn
+
 
 # encode a json string like:
 #   {
@@ -11,6 +15,7 @@ from be.model import db_conn
 #       "terminal": [terminal code],
 #       "timestamp": [ts]} to a JWT
 #   }
+from be.model.order_manager import OrderManager
 
 
 def jwt_encode(user_id: str, terminal: str) -> str:
@@ -167,3 +172,38 @@ class User(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
 
+    def cancel_order(self,user_id,password,order_id):
+        """取消订单"""
+        # sql="select user_id,password from usr where user_id={0}".format(user_id)
+        # cursor=self.conn.cursor()
+        # cursor.execute(sql)
+        # if(cursor.rowcount==0):
+        #     return error.error_non_exist_user_id(user_id)
+        # row = cursor.fetchone()
+        # if(row[1]!=password):
+        #     return error.error_authorization_fail()
+        code,desc=self.check_password(user_id,password)
+        if(code!=200):
+            return code,desc
+        # 用户认证通过
+        om=OrderManager(conn=self.conn)
+        canceled_num=om.cancel_order(order_id)
+        if(canceled_num==0):
+            return error.error_invalid_order_id(order_id)
+        else:
+            return 200,"ok"
+
+    def history_order(self,user_id,token):
+        """用户查询已完成订单
+
+        Returns:
+            code,json_response_body
+        """
+        code,desc=self.check_token(user_id,token)
+        if(code!=200):
+            return code,desc
+        # 用户认证通过
+        om=OrderManager(conn=self.conn)
+        rows=om.user_history_order(user_id)
+        l=list(rows)
+        return 200,jsonify(l)

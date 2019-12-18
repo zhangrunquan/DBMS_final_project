@@ -15,7 +15,7 @@ class Store:
         conn = Store.get_db_conn()
         cursor = conn.cursor()
         # 删除表
-        tables = ['usr', 'store', 'user_store', 'pending_order', 'finished_oreder']
+        tables = ['usr', 'store', 'user_store', 'pending_order', 'finished_order']
         sql = "".join(['drop table if exists {};'.format(name) for name in tables])
         cursor.execute(sql)
         sql = 'create table usr(' \

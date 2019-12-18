@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask import request
 from flask import jsonify
 from be.model.buyer import Buyer
+from be.model.user import User
 
 bp_buyer = Blueprint("buyer", __name__, url_prefix="/buyer")
 
@@ -40,3 +41,23 @@ def add_funds():
     b = Buyer()
     code, message = b.add_funds(user_id, password, add_value)
     return jsonify({"message": message}), code
+
+@bp_buyer.route("/finished_order",methods=["POST"])
+def finished_order():
+    user_id:str=request.json.get("user_id")
+    token:str=request.json.get("token")
+    user=User()
+    code,msg=user.history_order(user_id,token)
+    if(code==200):
+        return msg,code
+    else:
+        return jsonify({"message": msg}), code
+
+@bp_buyer.route("/cancel_order",methods=["POST"])
+def cancel_order():
+    user_id=request.json.get("user_id")
+    password=request.json.get("password")
+    order_id=request.json.get("order_id")
+    user=User()
+    code,msg=user.cancel_order(user_id,password,order_id)
+    return jsonify({"message": msg}), code
