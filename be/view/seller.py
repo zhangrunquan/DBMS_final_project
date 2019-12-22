@@ -6,7 +6,6 @@ import json
 
 bp_seller = Blueprint("seller", __name__, url_prefix="/seller")
 
-
 @bp_seller.route("/create_store", methods=["POST"])
 def seller_create_store():
     user_id: str = request.json.get("user_id")
@@ -14,7 +13,6 @@ def seller_create_store():
     s = seller.Seller()
     code, message = s.create_store(user_id, store_id)
     return jsonify({"message": message}), code
-
 
 @bp_seller.route("/add_book", methods=["POST"])
 def seller_add_book():
@@ -27,7 +25,6 @@ def seller_add_book():
     code, message = s.add_book(user_id, store_id, book_info.get("id"), json.dumps(book_info), stock_level)
 
     return jsonify({"message": message}), code
-
 
 @bp_seller.route("/add_stock_level", methods=["POST"])
 def add_stock_level():

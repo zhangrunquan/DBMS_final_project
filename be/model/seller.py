@@ -1,7 +1,8 @@
 import sqlite3 as sqlite
 from be.model import error
 from be.model import db_conn
-
+import psycopg2
+from be.model.constants import Constants as C
 
 class Seller(db_conn.DBConn):
 

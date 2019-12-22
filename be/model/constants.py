@@ -12,7 +12,6 @@ class Constants:
     # 自动清除过期订单
     AUTO_CANCELER_DEFAULT_INTERVAL=15 # 默认时间间隔
 
-
     # 测试用
     TEST_DEFAULT_USER_PASSWORD='123456'
     TEST_DEFAULT_TERMINAL='terminal1'

@@ -4,6 +4,8 @@ import json
 import logging
 from be.model import db_conn
 from be.model import error
+import psycopg2
+from be.model.constants import Constants as C
 
 
 class Buyer(db_conn.DBConn):

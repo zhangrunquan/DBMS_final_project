@@ -4,7 +4,11 @@ import pytest
 
 from fe.access import auth
 from fe import conf
+import psycopg2
+from be.model.store import Store
 
+conn = Store.get_db_conn()
+cursor = conn.cursor()
 
 class TestRegister:
     @pytest.fixture(autouse=True)
@@ -19,8 +23,15 @@ class TestRegister:
         assert code == 200
 
     def test_unregister_ok(self):
+        # tables = ['usr']
+        # sql = "".join(['drop table if exists {};'.format(name) for name in tables])
+        # cursor.execute(sql)
+        # conn.commit()
+
         code = self.auth.register(self.user_id, self.password)
         assert code == 200
+
+        Store.init_tables()
 
         code = self.auth.unregister(self.user_id, self.password)
         assert code == 200

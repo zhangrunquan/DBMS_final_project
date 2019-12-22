@@ -4,7 +4,6 @@ import sqlite3 as sqlite
 import psycopg2
 from be.model.constants import Constants as C
 
-
 class Store:
     """database abstraction"""
 
@@ -18,12 +17,13 @@ class Store:
         tables = ['usr', 'store', 'user_store', 'pending_order', 'finished_order']
         sql = "".join(['drop table if exists {};'.format(name) for name in tables])
         cursor.execute(sql)
+        conn.commit()
         sql = 'create table usr(' \
-              'user_id varchar(50) primary key ,' \
-              'password varchar(50),' \
+              'user_id varchar(200) primary key ,' \
+              'password varchar(200),' \
               'balance int,' \
-              'token varchar(100),' \
-              'terminal varchar(100)' \
+              'token varchar(500),' \
+              'terminal varchar(500)' \
               ');'
         sql += 'create table store(' \
                'id serial primary key,' \
