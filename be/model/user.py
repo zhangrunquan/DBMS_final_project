@@ -7,7 +7,7 @@ from flask import jsonify
 
 from be.model import error
 from be.model import db_conn
-
+from be.model.constants import Constants as C
 
 # encode a json string like:
 #   {
@@ -182,9 +182,9 @@ class User(db_conn.DBConn):
         # row = cursor.fetchone()
         # if(row[1]!=password):
         #     return error.error_authorization_fail()
-        code,desc=self.check_password(user_id,password)
+        code,msg=self.check_password(user_id,password)
         if(code!=200):
-            return code,desc
+            return code,msg
         # 用户认证通过
         om=OrderManager(conn=self.conn)
         canceled_num=om.cancel_order(order_id)
@@ -199,11 +199,37 @@ class User(db_conn.DBConn):
         Returns:
             code,json_response_body
         """
-        code,desc=self.check_token(user_id,token)
+        code,msg=self.check_token(user_id,token)
         if(code!=200):
-            return code,desc
+            return code,msg
         # 用户认证通过
         om=OrderManager(conn=self.conn)
         rows=om.user_history_order(user_id)
         l=list(rows)
         return 200,jsonify(l)
+
+    def consign(self, seller_id, password, order_id):
+        """商家发货"""
+        code, msg = self.check_password(seller_id, password)
+        if (code != 200):
+            return code, msg
+        # 用户认证通过
+        om = OrderManager(conn=self.conn)
+        updated_num=om.update_order_status(order_id,C.PO_WATI_RECEIPT)
+        if(updated_num!=1):
+            return error.error_invalid_order_id(order_id)
+        else:
+            return 200,"ok"
+
+    def receive(self, user_id, password, order_id):
+        """用户收货"""
+        code, msg = self.check_password(user_id, password)
+        if (code != 200):
+            return code, msg
+        # 用户认证通过
+        om = OrderManager(conn=self.conn)
+        succ_flag = om.move_to_finished(order_id)
+        if(succ_flag):
+            return 200,'ok'
+        else:
+            return error.error_invalid_order_id(order_id)

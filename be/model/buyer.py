@@ -161,5 +161,3 @@ class Buyer(db_conn.DBConn):
 
         return 200, "ok"
 
-    def receive(self,user_id,password,order_id):
-        """用户收货"""
