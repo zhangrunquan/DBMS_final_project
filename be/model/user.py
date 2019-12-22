@@ -88,8 +88,8 @@ class User(db_conn.DBConn):
 
     def check_password(self, user_id: str, password: str) -> (int, str):
         cursor = self.conn.cursor()
-        sql = "SELECT token from usr where user_id='%s'" % (user_id)
-        #cursor = self.conn.execute("SELECT password from user where user_id=?", (user_id,))
+        sql = "SELECT password from usr where user_id=\'{}\'" .format(user_id)
+        cursor.execute(sql)
         row = cursor.fetchone()
         if row is None:
             return error.error_authorization_fail()

@@ -10,54 +10,51 @@ class Seller(db_conn.DBConn):
         db_conn.DBConn.__init__(self)
 
     def add_book(self, user_id: str, store_id: str, book_id: str, book_json_str: str, stock_level: int):
-        try:
-            if not self.user_id_exist(user_id):
-                return error.error_non_exist_user_id(user_id)
-            if not self.store_id_exist(store_id):
-                return error.error_non_exist_store_id(store_id)
-            if self.book_id_exist(store_id, book_id):
-                return error.error_exist_book_id(book_id)
 
-            self.conn.execute("INSERT into store(store_id, book_id, book_info, stock_level)"
-                              "VALUES (?, ?, ?, ?)", (store_id, book_id, book_json_str, stock_level))
-            self.conn.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
-        except BaseException as e:
-            return 530, "{}".format(str(e))
+        if not self.user_id_exist(user_id):
+            return error.error_non_exist_user_id(user_id)
+        if not self.store_id_exist(store_id):
+            return error.error_non_exist_store_id(store_id)
+        if self.book_id_exist(store_id, book_id):
+            return error.error_exist_book_id(book_id)
+
+        sql='INSERT into store(store_id, book_id, book_info, stock_level) values (\'{0}\',\'{1}\',\'{2}\',{3})' \
+            .format(store_id, book_id, book_json_str, stock_level)
+        cursor=self.conn.cursor()
+        try:
+            cursor.execute(sql)
+        except Exception as e:
+            print(e)
+        self.conn.commit()
+
         return 200, "ok"
 
     def add_stock_level(self, user_id: str, store_id: str, book_id: str, add_stock_level: int):
-        try:
-            if not self.user_id_exist(user_id):
-                return error.error_non_exist_user_id(user_id)
-            if not self.store_id_exist(store_id):
-                return error.error_non_exist_store_id(store_id)
-            if not self.book_id_exist(store_id, book_id):
-                return error.error_non_exist_book_id(book_id)
+        if not self.user_id_exist(user_id):
+            return error.error_non_exist_user_id(user_id)
+        if not self.store_id_exist(store_id):
+            return error.error_non_exist_store_id(store_id)
+        if not self.book_id_exist(store_id, book_id):
+            return error.error_non_exist_book_id(book_id)
 
-            self.conn.execute("UPDATE store SET stock_level = stock_level + ? "
-                              "WHERE store_id = ? AND book_id = ?", (add_stock_level, store_id, book_id))
-            self.conn.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
-        except BaseException as e:
-            return 530, "{}".format(str(e))
+        # sql="UPDATE store SET stock_level = stock_level + {0}  " \
+        #     "WHERE store_id = {1} AND book_id = {2}".format(add_stock_level, store_id, book_id))
+        sql='update store set stock_level=stock_level+{0} ' \
+            'WHERE store_id = \'{1}\' AND book_id = \'{2}\''.format(add_stock_level,store_id,book_id)
+        cursor=self.conn.cursor()
+        cursor.execute(sql)
+        self.conn.commit()
         return 200, "ok"
 
     def create_store(self, user_id: str, store_id: str) -> (int, str):
-        try:
-            if not self.user_id_exist(user_id):
-                return error.error_non_exist_user_id(user_id)
-            if self.store_id_exist(store_id):
-                return error.error_exist_store_id(store_id)
-            self.conn.execute("INSERT into user_store(store_id, user_id)"
-                              "VALUES (?, ?)", (store_id, user_id))
-            self.conn.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
-        except BaseException as e:
-            return 530, "{}".format(str(e))
+        if not self.user_id_exist(user_id):
+            return error.error_non_exist_user_id(user_id)
+        if self.store_id_exist(store_id):
+            return error.error_exist_store_id(store_id)
+        sql='insert into user_store(user_id, store_id) values (\'{0}\',\'{1}\')'.format(user_id,store_id)
+        cursor=self.conn.cursor()
+        cursor.execute(sql)
+        self.conn.commit()
         return 200, "ok"
 
 

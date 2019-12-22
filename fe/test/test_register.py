@@ -16,6 +16,7 @@ class TestRegister:
         self.user_id = "test_register_user_{}".format(time.time())
         self.password = "test_register_password_{}".format(time.time())
         self.auth = auth.Auth(conf.URL)
+        Store.init_tables()
         yield
 
     def test_register_ok(self):
@@ -23,15 +24,8 @@ class TestRegister:
         assert code == 200
 
     def test_unregister_ok(self):
-        # tables = ['usr']
-        # sql = "".join(['drop table if exists {};'.format(name) for name in tables])
-        # cursor.execute(sql)
-        # conn.commit()
-
         code = self.auth.register(self.user_id, self.password)
         assert code == 200
-
-        Store.init_tables()
 
         code = self.auth.unregister(self.user_id, self.password)
         assert code == 200

@@ -27,23 +27,23 @@ class Store:
               ');'
         sql += 'create table store(' \
                'id serial primary key,' \
-               'store_id varchar(50),' \
-               'book_id varchar(50),' \
-               'book_info varchar(500),' \
+               'store_id varchar(100),' \
+               'book_id varchar(100),' \
+               'book_info varchar(2000),' \
                'stock_level int,' \
                'price int,' \
                'search_content1 varchar(200),' \
                'search_content2 varchar(200)' \
                ');'
         sql += 'create table user_store(' \
-               'user_id varchar(50),' \
-               'store_id varchar(50) primary key' \
+               'user_id varchar(100),' \
+               'store_id varchar(100) primary key' \
                ');'
         sql += 'create table pending_order(' \
                'order_id serial primary key,' \
-               'buyer_id varchar(50),' \
-               'seller_id varchar(50),' \
-               'store_id varchar(50),' \
+               'buyer_id varchar(100),' \
+               'seller_id varchar(100),' \
+               'store_id varchar(100),' \
                'price int,' \
                'order_info varchar(500),' \
                'status smallint,' \
@@ -51,9 +51,9 @@ class Store:
                ');'
         sql += 'create table finished_order(' \
                'order_id int primary key,' \
-               'buyer_id varchar(50),' \
-               'seller_id varchar(50),' \
-               'store_id varchar(50),' \
+               'buyer_id varchar(100),' \
+               'seller_id varchar(100),' \
+               'store_id varchar(100),' \
                'order_info varchar(500),' \
                'price int' \
                ');'
