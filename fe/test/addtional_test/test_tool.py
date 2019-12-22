@@ -6,9 +6,9 @@ from be.model.user import jwt_encode
 class TestTool:
 
     @staticmethod
-    def add_order(conn, buyer_id, order_id):
-        sql = 'insert into finished_order(order_id,buyer_id) ' \
-              'values ({0},\'{1}\');'.format(order_id, buyer_id)
+    def add_order(conn, buyer_id, order_id,seller_id=C.TEST_DEFAULT_SELLER):
+        sql = 'insert into finished_order(order_id,buyer_id,seller_id) ' \
+              'values ({0},\'{1}\',\'{2}\');'.format(order_id, buyer_id,seller_id)
         TestTool.execute_sql(conn, sql)
 
     @staticmethod

@@ -45,6 +45,48 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(code,200)
         self.assertEqual(len(body),1)
 
+    def test_seller_consign(self):
+        """测试商家发货"""
+        Store.init_tables()
+        order_id, buyer_id = 1, C.TEST_DEFAULT_BUYER
+        seller_id=C.TEST_DEFAULT_SELLER
+        passw = C.TEST_DEFAULT_USER_PASSWORD
+        wrong_passw = 1
+        conn = Store.get_db_conn()
+        # user不存在
+        TestTool.add_order(conn, buyer_id, order_id,seller_id)
+        u = User()
+        code, _ = u.consign(seller_id,passw,order_id)
+        self.assertNotEqual(code, 200)
+        # 密码错误
+        TestTool.add_user(conn, seller_id)
+        code, _ = u.consign(seller_id,wrong_passw,order_id)
+        self.assertNotEqual(code, 200)
+        # 正常情况
+        code, _ = u.consign(seller_id, passw, order_id)
+        self.assertEqual(code, 200)
+
+
+    def test_buyer_receive(self):
+        """测试买家收货"""
+        Store.init_tables()
+        order_id, buyer_id = 1, C.TEST_DEFAULT_BUYER
+        passw = C.TEST_DEFAULT_USER_PASSWORD
+        wrong_passw = 1
+        conn = Store.get_db_conn()
+        # user不存在
+        TestTool.add_order(conn, buyer_id, order_id)
+        u = User()
+        code, _ = u.receive(buyer_id,passw,order_id)
+        self.assertNotEqual(code, 200)
+        # 密码错误
+        TestTool.add_user(conn, buyer_id)
+        code, _ = u.receive(buyer_id, wrong_passw, order_id)
+        self.assertNotEqual(code, 200)
+        # 正常情况
+        code, _ = u.receive(buyer_id, passw, order_id)
+        self.assertEqual(code, 200)
+
 
 if __name__ == '__main__':
     unittest.main()

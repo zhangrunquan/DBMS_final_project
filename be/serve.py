@@ -45,5 +45,6 @@ def be_run():
     app.register_blueprint(buyer.bp_buyer)
     app.run()
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     be_run()

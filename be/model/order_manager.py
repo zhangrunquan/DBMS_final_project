@@ -1,4 +1,5 @@
 from be.model import db_conn
+from be.model.constants import Constants as C
 import datetime
 import time
 
@@ -46,7 +47,7 @@ class OrderManager(db_conn.DBConn):
             deleted row num
 
         Raises:
-            Exception
+            any Exception
 
         """
 
@@ -58,6 +59,54 @@ class OrderManager(db_conn.DBConn):
             self.conn.rollback()
             raise
         return cursor.rowcount
+
+    def update_order_status(self,order_id,status:int):
+        """修改订单状态
+
+        Returns:
+            updated row num
+
+        Raises:
+            any Exception
+
+        """
+        cursor=self.conn.cursor()
+        sql='update pending_order set status={0} where order_id={1}'.format(status,order_id)
+        try:
+            cursor.execute(sql)
+        except Exception:
+            self.conn.rollback()
+            raise
+        return cursor.rowcount
+
+    def move_to_finished(self,order_id:int):
+        """将订单移至已完成
+        todo:时间戳类型没有正确被处理
+
+        Returns:
+            True on success,False on failure
+
+        Raises:
+            any Exception
+
+        """
+        cursor=self.conn.cursor()
+        # 获取订单信息
+        sql='select order_id,buyer_id,seller_id,store_id,order_info,price from pending_order ' \
+            'where order_id={0}'.format(order_id)
+        cursor.execute(sql)
+        row=cursor.fetchone()
+        row=tuple(row)
+        # buyer_id,seller_id,store_id,order_info,price=row
+        # 删除pending_order中的订单
+        sql='delete from pending_order where order_id={}'.format(order_id)
+        sql+='insert into pending_order(buyer_id, seller_id, store_id, price, order_info, status, create_ts)' \
+             ' values (\'{0}\',\'{1}\',\'{2}\',{3},\'{4}\',{5},{6})'.format(*row)
+        # finished_order添加订单
+        cursor.execute(sql)
+        return True
+
+
 
 
 class ExpiredOrderCanceler():

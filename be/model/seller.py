@@ -60,5 +60,4 @@ class Seller(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
 
-    def consign(self):
-        """商家发货"""
+
