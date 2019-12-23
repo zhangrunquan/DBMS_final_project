@@ -29,7 +29,7 @@ class Store:
                'id serial primary key,' \
                'store_id varchar(100),' \
                'book_id varchar(100),' \
-               'book_info varchar(2000),' \
+               'book_info varchar(2500000),' \
                'stock_level int,' \
                'price int,' \
                'search_content1 varchar(200),' \
@@ -40,7 +40,7 @@ class Store:
                'store_id varchar(100) primary key' \
                ');'
         sql += 'create table pending_order(' \
-               'order_id serial primary key,' \
+               'order_id varchar(200) primary key,' \
                'buyer_id varchar(100),' \
                'seller_id varchar(100),' \
                'store_id varchar(100),' \

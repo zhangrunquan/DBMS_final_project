@@ -24,6 +24,7 @@ class Seller(db_conn.DBConn):
         try:
             cursor.execute(sql)
         except Exception as e:
+            l=len(book_json_str)
             print(e)
         self.conn.commit()
 

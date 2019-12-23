@@ -71,7 +71,7 @@ class OrderManager(db_conn.DBConn):
 
         """
         cursor=self.conn.cursor()
-        sql='update pending_order set status={0} where order_id={1}'.format(status,order_id)
+        sql='update pending_order set status={0} where order_id=\'{1}\''.format(status,order_id)
         try:
             cursor.execute(sql)
         except Exception:
@@ -101,7 +101,7 @@ class OrderManager(db_conn.DBConn):
         # 删除pending_order中的订单
         sql='delete from pending_order where order_id={}'.format(order_id)
         sql+='insert into pending_order(buyer_id, seller_id, store_id, price, order_info, status, create_ts)' \
-             ' values (\'{0}\',\'{1}\',\'{2}\',{3},\'{4}\',{5},{6})'.format(*row)
+             ' values (\'{0}\',\'{1}\',\'{2}\',{3},\'{4}\',{5},{6})'.format(*row,'now()')
         # finished_order添加订单
         cursor.execute(sql)
         return True
