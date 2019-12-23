@@ -1,5 +1,6 @@
 from fe.bench.workload import Workload
 from fe.bench.session import Session
+import logging
 
 
 def run_bench():
