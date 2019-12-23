@@ -3,7 +3,7 @@ import unittest
 from be.model.constants import Constants as C
 from be.model.store import Store
 from be.model.user import User
-from fe.test.addtional_test.test_tool import TestTool
+from fe.test.additional_test.test_tool import TestTool
 
 
 class MyTestCase(unittest.TestCase):
@@ -11,7 +11,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_user_cancel_order(self):
         Store.init_tables()
-        order_id, buyer_id = 1, 1
+        order_id, buyer_id = C.TEST_DEFAULT_ORDER_ID, C.TEST_DEFAULT_BUYER
         passw=C.TEST_DEFAULT_USER_PASSWORD
         wrong_passw=1
         conn=Store.get_db_conn()
@@ -27,12 +27,13 @@ class MyTestCase(unittest.TestCase):
         # 正常情况
         code,_=u.cancel_order(buyer_id,passw,order_id)
         self.assertEqual(code, 200)
+        conn.close()
 
     def test_history_order(self):
         """测试用户查询已完成订单"""
         Store.init_tables()
         conn=Store.get_db_conn()
-        user_id,order_id=1,1
+        user_id,order_id=C.TEST_DEFAULT_BUYER,C.TEST_DEFAULT_ORDER_ID
         token=TestTool.add_user_with_token(conn,user_id)
         TestTool.add_order(conn,user_id,order_id)
         dummy_token='1'
@@ -43,12 +44,12 @@ class MyTestCase(unittest.TestCase):
         # 正常情况
         code,body=u.history_order(user_id,token)
         self.assertEqual(code,200)
-        self.assertEqual(len(body),1)
+        conn.close()
 
     def test_seller_consign(self):
         """测试商家发货"""
         Store.init_tables()
-        order_id, buyer_id = 1, C.TEST_DEFAULT_BUYER
+        order_id, buyer_id = C.TEST_DEFAULT_ORDER_ID, C.TEST_DEFAULT_BUYER
         seller_id=C.TEST_DEFAULT_SELLER
         passw = C.TEST_DEFAULT_USER_PASSWORD
         wrong_passw = 1
@@ -65,12 +66,12 @@ class MyTestCase(unittest.TestCase):
         # 正常情况
         code, _ = u.consign(seller_id, passw, order_id)
         self.assertEqual(code, 200)
-
+        conn.close()
 
     def test_buyer_receive(self):
         """测试买家收货"""
         Store.init_tables()
-        order_id, buyer_id = 1, C.TEST_DEFAULT_BUYER
+        order_id, buyer_id = C.TEST_DEFAULT_ORDER_ID, C.TEST_DEFAULT_BUYER
         passw = C.TEST_DEFAULT_USER_PASSWORD
         wrong_passw = 1
         conn = Store.get_db_conn()
@@ -86,7 +87,7 @@ class MyTestCase(unittest.TestCase):
         # 正常情况
         code, _ = u.receive(buyer_id, passw, order_id)
         self.assertEqual(code, 200)
-
+        conn.close()
 
 if __name__ == '__main__':
     unittest.main()

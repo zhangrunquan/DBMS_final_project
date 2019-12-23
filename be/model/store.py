@@ -16,8 +16,14 @@ class Store:
         # 删除表
         tables = ['usr', 'store', 'user_store', 'pending_order', 'finished_order']
         sql = "".join(['drop table if exists {};'.format(name) for name in tables])
-        cursor.execute(sql)
+
+        try:
+            cursor.execute(sql)
+        except Exception as e:
+            print(e)
+
         conn.commit()
+
         sql = 'create table usr(' \
               'user_id varchar(200) primary key ,' \
               'password varchar(200),' \
@@ -50,7 +56,7 @@ class Store:
                'create_ts timestamp' \
                ');'
         sql += 'create table finished_order(' \
-               'order_id int primary key,' \
+               'order_id varchar(200) primary key,' \
                'buyer_id varchar(100),' \
                'seller_id varchar(100),' \
                'store_id varchar(100),' \

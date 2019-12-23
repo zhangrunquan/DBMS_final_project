@@ -27,3 +27,7 @@ class Constants:
     TEST_DEFAULT_TERMINAL='terminal1'
     TEST_DEFAULT_SELLER='test_seller'
     TEST_DEFAULT_BUYER='test_buyer'
+    TEST_DEFAULT_ORDER_ID='test_order_id'
+    TEST_DEFAULT_PRICE=1929
+    TEST_DEFAULT_ORDER_INFO='test order info'
+    TEST_DEFAULT_STORE_ID='test store id'

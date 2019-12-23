@@ -1,3 +1,5 @@
+import json
+
 import jwt
 import time
 import logging
@@ -67,6 +69,10 @@ class User(db_conn.DBConn):
         cursor = self.conn.cursor()
         terminal = "terminal_{}".format(str(time.time()))
         token = jwt_encode(user_id, terminal)
+
+        if(self.user_id_exist(user_id)):
+            return error.error_exist_user_id(user_id)
+
         sql = "INSERT INTO usr(user_id, password, balance, token, terminal) " \
               "VALUES ('%s', '%s', %d, '%s', '%s')" % (user_id, password, 0, token, terminal)
         cursor.execute(sql)
@@ -193,7 +199,7 @@ class User(db_conn.DBConn):
             return code,msg
         # 用户认证通过
         om=OrderManager(conn=self.conn)
-        canceled_num=om.cancel_order(order_id)
+        canceled_num=om.cancel_order(user_id,order_id)
         if(canceled_num==0):
             return error.error_invalid_order_id(order_id)
         else:
@@ -212,7 +218,7 @@ class User(db_conn.DBConn):
         om=OrderManager(conn=self.conn)
         rows=om.user_history_order(user_id)
         l=list(rows)
-        return 200,jsonify(l)
+        return 200,json.dumps(l)
 
     def consign(self, seller_id, password, order_id):
         """商家发货"""

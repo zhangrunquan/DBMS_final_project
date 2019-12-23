@@ -1,4 +1,4 @@
-from be.model import db_conn
+from be.model import db_conn, error
 from be.model.constants import Constants as C
 import datetime
 import time
@@ -32,7 +32,7 @@ class OrderManager(db_conn.DBConn):
         # 查询订单并返回
         sql = 'select order_id,seller_id,store_id,order_info,price ' \
               'from finished_order ' \
-              'where buyer_id={0}'.format(user_id)
+              'where buyer_id=\'{0}\';'.format(user_id)
         try:
             cursor.execute(sql)
         except Exception:
@@ -52,7 +52,7 @@ class OrderManager(db_conn.DBConn):
         """
 
         cursor = self.conn.cursor()
-        sql = 'delete from pending_order where buyer_id={0} and order_id={1}'.format(user_id, order_id)
+        sql = 'delete from pending_order where buyer_id=\'{0}\' and order_id=\'{1}\';'.format(user_id, order_id)
         try:
             cursor.execute(sql)
         except Exception:
@@ -71,7 +71,7 @@ class OrderManager(db_conn.DBConn):
 
         """
         cursor=self.conn.cursor()
-        sql='update pending_order set status={0} where order_id=\'{1}\''.format(status,order_id)
+        sql='update pending_order set status={0} where order_id=\'{1}\';'.format(status,order_id)
         try:
             cursor.execute(sql)
         except Exception:
@@ -79,7 +79,7 @@ class OrderManager(db_conn.DBConn):
             raise
         return cursor.rowcount
 
-    def move_to_finished(self,order_id:int):
+    def move_to_finished(self,order_id:str):
         """将订单移至已完成
         todo:时间戳类型没有正确被处理
 
@@ -92,16 +92,18 @@ class OrderManager(db_conn.DBConn):
         """
         cursor=self.conn.cursor()
         # 获取订单信息
-        sql='select order_id,buyer_id,seller_id,store_id,order_info,price from pending_order ' \
-            'where order_id={0}'.format(order_id)
+        sql='select order_id,buyer_id,seller_id,store_id,price,order_info from pending_order ' \
+            'where order_id=\'{0}\';'.format(order_id)
         cursor.execute(sql)
         row=cursor.fetchone()
-        row=tuple(row)
+        if row is None:
+            return error.error_invalid_order_id(order_id)
+
         # buyer_id,seller_id,store_id,order_info,price=row
         # 删除pending_order中的订单
-        sql='delete from pending_order where order_id={}'.format(order_id)
-        sql+='insert into pending_order(buyer_id, seller_id, store_id, price, order_info, status, create_ts)' \
-             ' values (\'{0}\',\'{1}\',\'{2}\',{3},\'{4}\',{5},{6})'.format(*row,'now()')
+        sql='delete from pending_order where order_id=\'{0}\';'.format(order_id)
+        sql+='insert into finished_order(order_id,buyer_id, seller_id, store_id, price, order_info)' \
+             ' values (\'{0}\',\'{1}\',\'{2}\',\'{3}\',{4},\'{5}\');'.format(*row)
         # finished_order添加订单
         cursor.execute(sql)
         return True
@@ -130,7 +132,7 @@ class ExpiredOrderCanceler():
         now = datetime.datetime.now()
         min_dt = now - datetime.timedelta(seconds=valid_time)
         dt_str = min_dt.strftime("%Y-%m-%d %H:%M:%S")
-        sql = 'delete from pending_order where create_ts<timestamp \'{0}\''.format(dt_str)
+        sql = 'delete from pending_order where create_ts<timestamp \'{0}\';'.format(dt_str)
         try:
             cursor = conn.cursor()
             cursor.execute(sql)
