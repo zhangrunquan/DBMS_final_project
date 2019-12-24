@@ -11,7 +11,7 @@ error_code = {
     518: "invalid order id {}",
     519: "not sufficient funds, order id {}",
     520: "order not belong to user",
-    521: "",
+    521: "No such feild",
     522: "",
     523: "",
     524: "",

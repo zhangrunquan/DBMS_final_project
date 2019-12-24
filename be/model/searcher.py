@@ -32,7 +32,7 @@ class Searcher(db_conn.DBConn):
         elif content_scope=="titles":
             search_feild="search_content2"
         else:
-            return 400,"No such feild"
+            return 521,"No such feild"
         
         if book_scope=="all":
             search_scope = 1
@@ -44,7 +44,7 @@ class Searcher(db_conn.DBConn):
         if search_scope:
             sql= "select * from store where %s@@to_tsquery('%s') limit 20 offset %d"%(search_feild,keyword,max_id)
         else:
-            sql= "select * from store where store_id=%s and %s@@to_tsquery('%s') limit 20 offset %d"%(book_scope,search_feild, keyword,max_id)
+            sql= "select * from store where store_id='%s' and %s@@to_tsquery('%s') limit 20 offset %d"%(book_scope,search_feild, keyword,max_id)
         cursor=self.conn.cursor()
         cursor.execute(sql)
         self.conn.commit()
