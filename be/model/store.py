@@ -2,7 +2,7 @@ import logging
 import os
 import sqlite3 as sqlite
 import psycopg2
-from be.model.constants import Constants as C
+from constants import Constants as C
 
 class Store:
     """database abstraction"""
@@ -38,9 +38,13 @@ class Store:
                'book_info varchar(2500000),' \
                'stock_level int,' \
                'price int,' \
-               'search_content1 varchar(200),' \
-               'search_content2 varchar(200)' \
+               'search_content1 tsvector,' \
+               'search_content2 tsvector' \
                ');'
+        sql +='create index idx_content_one '\
+              'on store using gin (search_content1);'
+        sql +='create index idx_content_two '\
+              'on store using gin (search_content2);'
         sql += 'create table user_store(' \
                'user_id varchar(100),' \
                'store_id varchar(100) primary key' \
