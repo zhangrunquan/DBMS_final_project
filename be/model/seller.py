@@ -3,6 +3,7 @@ from be.model import error
 from be.model import db_conn
 import psycopg2
 from be.model.constants import Constants as C
+import json
 
 class Seller(db_conn.DBConn):
 
@@ -18,8 +19,17 @@ class Seller(db_conn.DBConn):
         if self.book_id_exist(store_id, book_id):
             return error.error_exist_book_id(book_id)
 
-        sql='INSERT into store(store_id, book_id, book_info, stock_level) values (\'{0}\',\'{1}\',\'{2}\',{3})' \
-            .format(store_id, book_id, book_json_str, stock_level)
+        # sql='INSERT into store(store_id, book_id, book_info, stock_level) values (\'{0}\',\'{1}\',\'{2}\',{3})' \
+        #     .format(store_id, book_id, book_json_str, stock_level)
+        book_info=json.loads(book_json_str)
+        tag_list,title_string=book_info['tags'],book_info['title']
+        
+        tag_string=''
+        for item in tag_list:
+            tag_string+=(item+" ")
+        sql="INSERT into store(store_id, book_id, book_info, stock_level,search_content1, search_content2) values (\'{0}\',\'{1}\',\'{2}\',{3},to_tsvector(\'{4}\'),to_tsvector(\'{5}\'))"\
+            .format(store_id, book_id, book_json_str, stock_level,tag_string,title_string)
+
         cursor=self.conn.cursor()
         try:
             cursor.execute(sql)

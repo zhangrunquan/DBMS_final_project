@@ -2,7 +2,7 @@ import logging
 import os
 import sqlite3 as sqlite
 import psycopg2
-from constants import Constants as C
+from be.model.constants import Constants as C
 
 class Store:
     """database abstraction"""
