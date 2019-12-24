@@ -42,9 +42,9 @@ class Searcher(db_conn.DBConn):
             search_scope=0
         
         if search_scope:
-            sql= "select * from store where %s@@to_tsquery('%s') limit %d"%(content_scope, keyword,keyword)
+            sql= "select * from store where %s@@to_tsquery('%s') limit 20 offset %d"%(search_feild,keyword,max_id)
         else:
-            sql= "select * from store where store_id=%s and %s@@to_tsquery('%s') limit %d"%(search_scope,search_feild, keyword,keyword)
+            sql= "select * from store where store_id=%s and %s@@to_tsquery('%s') limit 20 offset %d"%(book_scope,search_feild, keyword,max_id)
         cursor=self.conn.cursor()
         cursor.execute(sql)
         self.conn.commit()
