@@ -7,7 +7,7 @@ from be.model.order_manager import ExpiredOrderCanceler
 from be.model.store import Store
 
 
-class MyTestCase(unittest.TestCase):
+class TestCase(unittest.TestCase):
     def test_something(self):
         """测试自动取消超时订单"""
         Store.init_tables()

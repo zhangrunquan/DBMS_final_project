@@ -6,7 +6,7 @@ from be.model.user import User
 from fe.test.additional_test.test_tool import TestTool
 
 
-class MyTestCase(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
 
     def test_user_cancel_order(self):
