@@ -14,7 +14,8 @@ cursor = conn.cursor()
 class TestSearcher:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):
-         self.seacher=Searcher()
+        self.seacher=Searcher()
+         
     def test_input_check(self):
         code,result=self.seacher.search('xxxx','all',100,'人物')
         assert(code==521 and result=="No such feild")
@@ -35,7 +36,7 @@ class TestSearcher:
 
 
     def test_store_search_tags(self):
-        code,result=self.seacher.search('tags','test_add_books_store_id_57d6cb50-2626-11ea-9bd7-acde48001122',0,'人物')
+        code,result=self.seacher.search('tags','test_add_books_store_id_da4e0b28-2641-11ea-a43b-acde48001122',0,'人物')
         result=json.loads(result)
         assert(code==200 and len(result)==1)
     
