@@ -12,7 +12,7 @@ error_code = {
     519: "not sufficient funds, order id {}",
     520: "order not belong to user",
     521: "No such feild",
-    522: "",
+    522: "No result returned",
     523: "",
     524: "",
     525: "",

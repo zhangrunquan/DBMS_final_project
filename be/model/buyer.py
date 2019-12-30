@@ -10,7 +10,7 @@ from be.model import error
 import psycopg2
 from be.model.constants import Constants as C
 from be.model.order_manager import OrderManager
-
+from psycopg2 import extensions
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -53,29 +53,31 @@ class Buyer(db_conn.DBConn):
             if stock_level < count:
                 return error.error_stock_level_low(book_id) + (order_id,)
 
-            # 库存足够,减少被购买的量
+        # 获取卖家id
+        sql = 'select user_id from user_store where store_id=\'{0}\';'.format(store_id)
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        seller_id = rows[0][0]
+
+        create_ts = 'now()'
+        order_info = jsonify(id_and_count)
+
+        self.conn.set_isolation_level(extensions.ISOLATION_LEVEL_SERIALIZABLE)
+        # 库存足够,减少被购买的量
+        for book_id, count in id_and_count:
             sql='update store set stock_level=stock_level-{0} ' \
                 'where store_id =\'{1}\' and book_id=\'{2}\' and stock_level>={3};' \
                 .format(count, store_id, book_id, count)
             cursor.execute(sql)
             if cursor.rowcount == 0:
+                self.conn.rollback()
                 return error.error_stock_level_low(book_id) + (order_id, )
 
-        # 获取卖家id
-        sql='select user_id from user_store where store_id=\'{0}\';'.format(store_id)
-        cursor.execute(sql)
-        rows=cursor.fetchall()
-        seller_id=rows[0][0]
-
         # 添加新订单
-        create_ts='now()'
-        order_info=jsonify(id_and_count)
-
         sql='insert into pending_order (buyer_id, seller_id, store_id, price, order_info, status, create_ts,order_id) ' \
             'values (\'{0}\',\'{1}\',\'{2}\',{3},\'{4}\',{5},\'{6}\',\'{7}\'); ' \
             .format(user_id,seller_id,store_id,total_price,order_info,C.PO_WAIT_PAYMENT,create_ts,uid)
         cursor.execute(sql)
-
         self.conn.commit()
         order_id = uid
 
@@ -84,6 +86,7 @@ class Buyer(db_conn.DBConn):
     def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
         conn = self.conn
 
+        self.conn.set_isolation_level(extensions.ISOLATION_LEVEL_SERIALIZABLE)
         # 获取订单信息
         sql='SELECT  buyer_id, seller_id, price,status ' \
             'FROM pending_order WHERE order_id = \'{}\';'.format(order_id)
@@ -135,6 +138,7 @@ class Buyer(db_conn.DBConn):
         cursor.execute(sql)
 
         if cursor.rowcount == 0:
+            self.conn.rollback()
             return error.error_not_sufficient_funds(order_id)
 
         # 增加卖家余额
@@ -143,6 +147,7 @@ class Buyer(db_conn.DBConn):
         cursor.execute(sql)
 
         if cursor.rowcount == 0:
+            self.conn.rollback()
             return error.error_non_exist_user_id(buyer_id)
 
         # 修改订单状态为待发货
@@ -167,7 +172,7 @@ class Buyer(db_conn.DBConn):
         if rows[0][0] != password:
             return error.error_authorization_fail()
 
-        sql='UPDATE usr SET balance = balance + {0} WHERE user_id = \'{1}\''.format(add_value,user_id)
+            sql='UPDATE usr SET balance = balance + {0} WHERE user_id = \'{1}\''.format(add_value,user_id)
         cursor.execute(sql)
 
         if cursor.rowcount == 0:
