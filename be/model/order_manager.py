@@ -81,7 +81,6 @@ class OrderManager(db_conn.DBConn):
 
     def move_to_finished(self,order_id:str):
         """将订单移至已完成
-        todo:时间戳类型没有正确被处理
 
         Returns:
             True on success,False on failure

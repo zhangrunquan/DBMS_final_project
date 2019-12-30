@@ -26,6 +26,9 @@ class TestCase(unittest.TestCase):
         cursor.execute(sql)
         self.assertEqual(cursor.rowcount, 0)
 
+    def test_foo(self):
+        conn=Store.get_db_conn()
+
 
 if __name__ == '__main__':
     unittest.main()
